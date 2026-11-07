@@ -1,0 +1,44 @@
+# 3-broker Kafka cluster (KRaft, no ZooKeeper). Internal listener :9092, host listener :19092/:29092/:39092
+x-kafka: &kafka
+  image: apache/kafka:3.7.0
+  environment: &env
+    KAFKA_PROCESS_ROLES: broker,controller
+    KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+    KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+    KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+    KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+    KAFKA_MIN_INSYNC_REPLICAS: 2
+    KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE: "false"
+    CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+services:
+  kafka1:
+    <<: *kafka
+    container_name: kafka1
+    ports: ["19092:19092"]
+    environment:
+      <<: *env
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9092,EXTERNAL://localhost:19092
+  kafka2:
+    <<: *kafka
+    container_name: kafka2
+    ports: ["29092:29092"]
+    environment:
+      <<: *env
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://localhost:29092
+  kafka3:
+    <<: *kafka
+    container_name: kafka3
+    ports: ["39092:39092"]
+    environment:
+      <<: *env
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:39092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka3:9092,EXTERNAL://localhost:39092

@@ -1,0 +1,32 @@
+# Small HDFS cluster for the lab: 1 NameNode + 3 DataNodes (so replication factor 3 is real).
+# Low on RAM? Delete the datanode2 and datanode3 blocks and run the ingest with HDFS_REPLICATION=1.
+services:
+  namenode:
+    image: apache/hadoop:3
+    container_name: namenode
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - "9870:9870"
+    env_file:
+      - ./hadoop.config
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-hadoop/dfs/name"
+  datanode1:
+    image: apache/hadoop:3
+    container_name: datanode1
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./hadoop.config
+  datanode2:
+    image: apache/hadoop:3
+    container_name: datanode2
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./hadoop.config
+  datanode3:
+    image: apache/hadoop:3
+    container_name: datanode3
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./hadoop.config
